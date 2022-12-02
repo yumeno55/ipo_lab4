@@ -3,7 +3,7 @@ import datetime
 import fastapi
 
 from model import Note, CreateNoteResponse, ReadNoteResponse, GetTimeInfoResponse, NoteStore,\
-    UpdateNoteResponse, DeleteNoteResponse
+    UpdateNoteResponse, DeleteNoteResponse, UncorrectTokenResponse
 
 
 api_router = fastapi.APIRouter()
@@ -18,10 +18,17 @@ with open("tokens.txt", "r") as f:
 notes = {}
 id = -1
 
-@api_router.get("/create_note", response_model=CreateNoteResponse)
+@api_router.post("/create_note", response_model=CreateNoteResponse)
 def create_note(text: str, token: str):
     global id
     global notes
+    keys = tokens.keys()
+    if not token in keys:
+        print("uncorrect")
+        return CreateNoteResponse(
+            id='',
+            answer="Uncorrect token"
+        )
     fileNameNote = 'notes' + tokens[token] + '.txt'
     fileNameId = 'id' + tokens[token] + '.txt'
     with open(fileNameNote, "r") as f:
@@ -42,11 +49,12 @@ def create_note(text: str, token: str):
         for id in notes.keys():
             f.write(notes[id].toString() + "\n")
     return CreateNoteResponse(
-        id=id
+        id=str(id),
+        answer=''
     )
 
 @api_router.get("/read_note", response_model=ReadNoteResponse)
-def create_note(id: int, token: str):
+def read_note(id: int, token: str):
     global notes
     fileNameNote = 'notes' + tokens[token] + '.txt'
     with open(fileNameNote, "r") as f:
@@ -79,7 +87,7 @@ def get_time_info(id: int, token: str):
         updated_at=note.updated_at
     )
 
-@api_router.get("/update_note", response_model=UpdateNoteResponse)
+@api_router.put("/update_note", response_model=UpdateNoteResponse)
 def update_note(id: int, text: str, token: str):
     global notes
     fileNameNote = 'notes' + tokens[token] + '.txt'
@@ -100,7 +108,7 @@ def update_note(id: int, text: str, token: str):
         id=id,
     )
 
-@api_router.get("/delete_note", response_model=DeleteNoteResponse)
+@api_router.delete("/delete_note", response_model=DeleteNoteResponse)
 def delete_note(id: int, token: str):
     global notes
     fileNameNote = 'notes' + tokens[token] + '.txt'

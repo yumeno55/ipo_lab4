@@ -5,7 +5,8 @@ from pydantic import BaseModel
 from datetime import datetime
 
 class CreateNoteResponse(BaseModel):
-    id: int
+    id: str
+    answer: str
 
 class ReadNoteResponse(BaseModel):
     id: int
@@ -20,6 +21,9 @@ class UpdateNoteResponse(BaseModel):
 
 class DeleteNoteResponse(BaseModel):
     id: int
+
+class UncorrectTokenResponse(BaseModel):
+    answer: str
 
 class Note():
     id = 0
